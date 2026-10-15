@@ -1,0 +1,112 @@
+title: Linux automation suite
+level: advanced
+minutes: 20
+summary: "Build an advanced operational suite: log rotation, verified backups, health monitors, and cron."
+resources:
+  - title: Bash scripting guide
+    url: https://www.gnu.org/software/bash/manual/
+    desc: Complete reference for GNU bash shell and built-in commands.
+  - title: Crontab manual
+    url: https://man7.org/linux/man-pages/man5/crontab.5.html
+    desc: Cron table specification format, schedules, and environment handling.
+steps:
+  - id: intro
+    type: lesson
+    title: Production automation engineering
+    body: |
+      Reliable DevOps automation requires scripts that are **idempotent**, **defensive**,
+      and **observable**:
+      - They handle missing directories, arguments, and unexpected inputs gracefully.
+      - They use non-zero exit codes to fail fast when errors occur.
+      - They preserve open file descriptors during log rotations.
+      - They verify cryptographic checksums to guarantee backup integrity.
+
+      In this capstone, you will construct a modular, unattended server maintenance suite
+      in `scripts/` and orchestrate its scheduling with cron.
+
+  - id: rotate-logs
+    type: task
+    title: Rotate and archive application logs
+    body: |
+      Write an executable script `scripts/rotate.sh` that rotates logs:
+      1. Accept an optional target directory as `$1` (defaulting to `var/log/app`).
+      2. Ensure directory `var/archive` exists.
+      3. Compress all `*.log` files from the target directory into `var/archive/logs.tar.gz`.
+      4. Atomically truncate each rotated `.log` file to 0 bytes so running services
+         keep their open file handles. Leave non-log files untouched.
+
+      Make `scripts/rotate.sh` executable and run it.
+    hint: "Use tar -czf var/archive/logs.tar.gz -C \"$dir\" *.log, then loop and truncate with : > \"$f\"."
+    success: Logs archived and truncated cleanly without deleting file descriptors.
+
+  - id: backup-verify
+    type: task
+    title: Create verified backup with SHA-256
+    body: |
+      Write an executable script `scripts/backup.sh` that performs verifiable backups:
+      1. Accept a source directory `$1` (default `data`) and target archive `$2` (default `backups/data.tar.gz`).
+      2. Validate that the source directory exists. If missing, write an error message to `stderr`
+         and exit with status code `1`.
+      3. Archive the source directory into the destination path.
+      4. Compute a SHA-256 hash file appended with `.sha256` alongside the archive.
+
+      Make it executable and run `./scripts/backup.sh`.
+    hint: "Check [ ! -d \"$src\" ] && exit 1, create the archive, and run sha256sum \"$dest\" > \"${dest}.sha256\"."
+    success: Backup created and verifiable with cryptographic SHA-256 checksums.
+
+  - id: monitor-metrics
+    type: task
+    title: Build a system health monitor
+    body: |
+      Write an executable monitoring script `scripts/monitor.sh`:
+      1. Read the root filesystem disk usage percentage using `df /`.
+      2. Support a threshold argument `-t <percent>` (defaulting to `80`).
+      3. If usage is at or below threshold, append `[OK] Disk usage: <percent>%` to `reports/health.log`.
+      4. If usage exceeds the threshold, append `[ALERT] Disk usage: <percent>% exceeds threshold`
+         to `reports/alerts.log`.
+
+      Make it executable and run `./scripts/monitor.sh`.
+    hint: "Extract usage with df / | awk 'NR==2 {gsub(\"%\", \"\"); print $5}' and compare against threshold."
+    success: System metrics monitored and alert thresholds evaluated correctly.
+
+  - id: service-watchdog
+    type: task
+    title: Build a self-healing service watchdog
+    body: |
+      Write an executable supervisor script `scripts/watchdog.sh`:
+      1. Check if the process `api-service` is running using `pgrep`.
+      2. If running, append `[INFO] api-service running` to `reports/watchdog.log`.
+      3. If down, append `[WARN] api-service down, restarting` to `reports/watchdog.log`,
+         invoke `./start_api.sh`, and then append `[INFO] api-service restored` to `reports/watchdog.log`.
+
+      Make it executable and run `./scripts/watchdog.sh`.
+    hint: "Use pgrep api-service to detect status, call ./start_api.sh on failure, and log status transitions."
+    success: "Service watchdog verified: automatically detected failure and restored daemon."
+
+  - id: schedule-suite
+    type: task
+    title: Orchestrate scheduling with crontab
+    body: |
+      Create `crontab.txt` configuring automated scheduling for your suite:
+      1. Run `scripts/watchdog.sh` every 5 minutes (`*/5 * * * *`).
+      2. Run `scripts/monitor.sh` every hour on the hour (`0 * * * *`).
+      3. Run `scripts/rotate.sh` every night at 02:30 (`30 2 * * *`).
+      4. Run `scripts/backup.sh` every Sunday at 03:00 (`0 3 * * 0`).
+
+      Redirect stdout and stderr for each job to append (`>> ... 2>&1`) to its log in `reports/`.
+    hint: "Define 4 lines in crontab.txt with standard 5-part schedules and >> reports/<job>.log 2>&1 redirection."
+    success: Unattended cron automation configured with correct schedules and logging.
+
+  - id: summary
+    type: lesson
+    title: Production automation deployed
+    body: |
+      **Congratulations!** You built a complete, resilient Linux automation engine:
+
+      - **Log Rotation:** Compressed historical traces while preserving open file handles via truncation.
+      - **Integrity Backups:** Verified archives against standalone cryptographic SHA-256 checksums.
+      - **Metric Monitoring:** Automated threshold evaluation and alert dispatching.
+      - **Self-Healing Watchdog:** Supervised process states and recovered crashed daemons automatically.
+      - **Cron Orchestration:** Scheduled multi-frequency jobs with proper error redirection.
+
+      These principles form the foundation of production infrastructure automation.

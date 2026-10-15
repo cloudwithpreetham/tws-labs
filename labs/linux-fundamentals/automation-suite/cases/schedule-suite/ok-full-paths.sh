@@ -1,0 +1,1 @@
+printf '*/5 * * * * $HOME/scripts/watchdog.sh >> $HOME/reports/watchdog.log 2>&1\n0 * * * * $HOME/scripts/monitor.sh >> $HOME/reports/health.log 2>&1\n30 2 * * * $HOME/scripts/rotate.sh >> $HOME/reports/rotate.log 2>&1\n0 3 * * 7 $HOME/scripts/backup.sh >> $HOME/reports/backup.log 2>&1\n' > crontab.txt
