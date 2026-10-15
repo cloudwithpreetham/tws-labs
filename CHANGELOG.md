@@ -8,6 +8,9 @@ To see what you are running, check `version` in `package.json`. Self-hosters: `g
 
 ## [Unreleased]
 
+### Added
+- **Linux Fundamentals: Linux automation suite**, an advanced capstone lab on building an automated operations suite in Bash with log rotation, SHA-256 verified backups, metric threshold alerting, process watchdog, and cron orchestration.
+
 ## [1.2.0] - 2026-10-15
 
 ### Highlights

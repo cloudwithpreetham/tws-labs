@@ -77,7 +77,14 @@ function loadRoadmap(catalog, file = DEFAULT_FILE) {
       });
     }
     for (const c of Array.isArray(d.capstones) ? d.capstones : []) {
-      if (c && typeof c.title === 'string') domain.capstones.push({ title: c.title, stack: typeof c.stack === 'string' ? c.stack : '' });
+      if (c && typeof c.title === 'string') {
+        const cap = { title: c.title, stack: typeof c.stack === 'string' ? c.stack : '' };
+        if (c.lab) {
+          if (allLabs.has(c.lab)) cap.href = `/lab/${c.lab}`;
+          else bad(`${d.id}/capstones: unknown lab "${c.lab}"`);
+        }
+        domain.capstones.push(cap);
+      }
     }
     out.domains.push(domain);
   }

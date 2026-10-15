@@ -181,7 +181,7 @@ function roadmapBody(roadmap) {
           <div class="body">${subs}<div class="acts">${open}${video}</div></div>
         </details>`;
     }).join('');
-    const caps = d.capstones.length ? `<div class="caps"><span class="eyebrow">Capstones</span><ul>${d.capstones.map((c) => `<li><b>${esc(c.title)}</b><small>${esc(c.stack)}</small></li>`).join('')}</ul></div>` : '';
+    const caps = d.capstones.length ? `<div class="caps"><span class="eyebrow">Capstones</span><ul>${d.capstones.map((c) => `<li><b>${c.href ? `<a href="${c.href}">${esc(c.title)}</a>` : esc(c.title)}</b><small>${esc(c.stack)}</small></li>`).join('')}</ul></div>` : '';
     return `<section class="rm-domain ${lineClass(d.id)}" id="${esc(d.id)}" data-domain>
       <h2>${esc(d.title)}</h2><p class="tagline">${esc(d.tagline)}</p>
       <div class="topics">${rows}</div>${caps}</section>`;

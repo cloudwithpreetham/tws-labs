@@ -23,7 +23,8 @@
             "linux-fundamentals/pipes-and-search",
             "linux-fundamentals/linux-in-action",
             "linux-fundamentals/awk-and-sed",
-            "linux-fundamentals/process-management-basics"
+            "linux-fundamentals/process-management-basics",
+            "linux-fundamentals/automation-suite"
           ],
           "subtopics": [
             "Architecture, processes, systemd",
@@ -219,7 +220,8 @@
       "capstones": [
         {
           "title": "Linux automation suite",
-          "stack": "Bash, cron, systemd, rsync, ssh, logrotate"
+          "stack": "Bash, cron, systemd, rsync, ssh, logrotate",
+          "lab": "linux-fundamentals/automation-suite"
         },
         {
           "title": "End-to-end secure CI/CD",
